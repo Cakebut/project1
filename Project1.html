@@ -1,0 +1,317 @@
+<html>
+<head>
+    <title>Find/Words Replace Translator</title>
+</head>
+<style>
+
+
+
+        .validation {
+            color: red;
+            font-size: 12px;
+        }
+
+        .replacement {
+            color: green;
+            font-size: 12px;
+
+
+        }
+
+        .textinput {
+            width: 250px;
+            }
+
+
+</style>
+  
+<body onload="onload()"></body>
+  
+
+<form id = "translate" action="translate" method="post" onsubmit="return submitForm()" onreset="setTimeout(getCurrentDate, 0)">
+    
+    <table>
+        <tr>
+            <td>
+                <label for="name">Name:</label>
+            </td>
+            <td>
+                <input class ="textinput" type="text" id="name" name="name" oninput="validateName()">
+                <span id="name_validation" class="validation"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label for="module_code">Module Code:</label>
+            </td>
+            <td>
+                <input class ="textinput" type="text" id="module_code" name="module_code" oninput ="validateModuleCode()">
+                <span id="module_code_validation" class="validation"></span>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>
+                <label for="current_date">Current Date:</label>
+            </td>
+            <td>
+
+                    <input class ="textinput" type="text" id="date" name="date" readonly>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label for="message">Message:</label>
+            </td>
+            <td>
+                <textarea id="message" name="message" rows="3" cols="20" oninput="validatemessage()">Test 202404</textarea>
+                <span id="message_validation" class="validation"></span>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>
+                <label for="find">Find:</label>
+            </td>
+            <td>
+                <input class ="textinput" type="text" id="find" name="find" oninput="validateReplace()">
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>
+                <label for="replace">Replace:</label>
+            </td>
+            <td>
+                <input class ="textinput" type="text" id="replace" name="replace">
+            </td>
+        </tr>
+
+
+        <tr>
+            <td colspan="2">
+                <button type="button" onclick="findAndReplace();">Find and Replace</button>
+                <span id="replacement_count" class="replacement"></span>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>
+                <label for="source_language">Source Language:</label>
+            </td>
+
+            <td>
+                <select id="source_language" name="source_language">
+                    <option value="en" selected>English</option>
+                    <option value="ms">Malay</option>
+                    <option value="ja">Japanese</option>
+                </select>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>
+                <label for="target_language">Target Language:</label>
+            </td>
+            
+            <td>
+                <div>
+                    <input type="radio" id="target_chinese" name="target_language" value="zh-CN" checked>
+                    <label for="target_chinese">Chinese</label>
+                </div>
+                <div>
+                    <input type="radio" id="target_japanese" name="target_language" value="ja">
+                    <label for="target_japanese">Japanese</label>
+                </div>
+                <div>
+                    <input type="radio" id="target_korean" name="target_language" value="ko">
+                    <label for="target_korean">Korean</label>
+                </div>
+            </td>
+        </tr>
+
+        
+        <tr>
+            <td><input type="submit" id="submitBtn" value="Translate"></td>
+            <td><input type="reset" value="Reset" form="translate"></td>
+        </tr>
+    </table>
+</form>
+
+<script>
+    function getCurrentDate() {
+        var currentDateInput = document.getElementById("date");
+        var now = new Date();
+
+        var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        var day = days[now.getDay()]; 
+        var month = months[now.getMonth()]; 
+        var date = now.getDate();
+        var year = now.getFullYear();
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var ampm = hours >= 12 ? 'PM' : 'AM'; 
+        hours = hours % 12; 
+        hours = hours ? hours : 12; 
+        minutes = minutes < 10 ? '0' + minutes : minutes; 
+
+        currentDateInput.value = `${date} ${month} ${year} ${day} ${hours}:${minutes} ${ampm}`;
+    }
+    
+
+
+    function findAndReplace() {
+        var find = document.getElementById("find").value.trim();
+        var replace = document.getElementById("replace").value.trim();
+        var message = document.getElementById("message").value.trim();
+
+        var words = message.split(" "); // Splitting into words based on spaces
+        var totalReplacements = 0;
+        var replacementsNo = document.getElementById("replacement_count");
+
+        if (find === "" || replace === "" || message === "") {
+            replacementsNo.innerHTML = "";
+            return;
+        }
+
+        for (var i = 0; i < words.length; i++) {
+            if (words[i].includes(find)) {
+                let count = (words[i].split(find).length-1); 
+                words[i] = words[i].split(find).join(replace); 
+                totalReplacements += count;
+            }
+        }
+
+        document.getElementById("message").value = words.join(" ");
+
+        if (totalReplacements > 0) {
+            replacementsNo.innerHTML = `Total replacements: ${totalReplacements}`;
+        } else {
+            replacementsNo.innerHTML = "";
+        }
+    }
+
+
+    function validateName() {
+        var name = document.getElementById("name").value.trim();
+        var validationMessage = document.getElementById("name_validation");
+
+        if (name.length < 1) {
+            validationMessage.innerHTML = "Name field cannot be empty";
+            return false;
+        } else if (!/^\D+$/.test(name)) {
+            validationMessage.innerHTML = "Name should not contain any numbers";
+            return false;
+        } else {
+            validationMessage.innerHTML = ""; 
+            return true;
+        }
+    }
+
+    
+    function validateModuleCode() {
+        var module_code = document.getElementById("module_code").value.trim(); 
+        var validationMessage = document.getElementById("module_code_validation");
+
+        if (module_code === "") {
+            document.getElementById("module_code_validation").innerHTML = "";
+            return true;
+        } 
+              
+        else if (/^[a-z]{3}[1-9][0-9]{2}$/.test(module_code)) {
+            document.getElementById("module_code_validation").innerHTML = "";
+            return true;
+        } 
+
+        else {
+            document.getElementById("module_code_validation").innerHTML = "Module code should be in the format of xxxAAA, where x is a lowercase alphabet and A is a digit in which the first digit is not 0";
+            return false;
+            }
+    }
+
+    function validatemessage() {
+        var messageInput = document.getElementById("message").value.trim();
+            
+        if (messageInput === "") {
+            document.getElementById("message_validation").innerHTML = "Text box cannot be empty."
+        }
+
+        else {
+            document.getElementById("message_validation").innerHTML = ""
+        }
+
+    }
+
+    function validateReplace() {
+        var find = document.getElementById("find").value.trim();
+        var replaceInput = document.getElementById("replace");
+
+        if (find.length < 1) {
+            replaceInput.disabled = true;
+            replaceInput.value = "";
+        } else {
+            replaceInput.disabled = false;
+        }
+    }
+
+
+    function translateMessage() {
+
+        var message = document.getElementById("message").value;
+
+        var sourceLanguage = document.getElementById("source_language").value;
+        var targetLanguage = document.querySelector('input[name="target_language"]:checked').value;
+        
+        window.open(`https://translate.google.com/?sl=${sourceLanguage}&tl=${targetLanguage}&text=${message}&op=translate`);
+    }
+
+
+    function submitForm() {
+    var proceed = true;
+
+    // validate mandatory inputs
+    if (!validateName()) {
+        proceed = false;
+    }
+
+    if (!validateModuleCode()) {
+        proceed = false;
+    }
+
+    var message = document.getElementById("message").value.trim();
+    if (message === "") {
+        proceed = false;
+        document.getElementById("message_validation").innerHTML = "Message field cannot be empty";
+    } else {
+        document.getElementById("message_validation").innerHTML = "";
+    }
+
+    if (proceed) {
+        // if proceed === True, imediately call translateMessage function()
+        translateMessage();
+    }
+
+    return proceed;
+}
+
+    function onLoad() {
+            getCurrentDate();
+            validateReplace();
+        }
+
+        window.onload = onLoad;
+
+</script>
+
+</body>
+
+</html>
